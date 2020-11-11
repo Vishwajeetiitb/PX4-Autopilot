@@ -168,6 +168,7 @@ int do_level_calibration(orb_advert_t *mavlink_log_pub)
 		param_set_no_notification(roll_offset_handle, &roll_mean_degrees);
 		param_set_no_notification(pitch_offset_handle, &pitch_mean_degrees);
 		param_notify_changes();
+		px4_usleep(600000); // give this enough time to propagate
 		success = true;
 	}
 
@@ -176,11 +177,11 @@ out:
 	if (success) {
 		calibration_log_info(mavlink_log_pub, CAL_QGC_DONE_MSG, "level");
 		px4_usleep(600000); // give this message enough time to propagate
-		return 0;
+		return PX4_OK;
 
 	} else {
 		calibration_log_critical(mavlink_log_pub, CAL_QGC_FAILED_MSG, "level");
 		px4_usleep(600000); // give this message enough time to propagate
-		return 1;
+		return PX4_ERROR;
 	}
 }

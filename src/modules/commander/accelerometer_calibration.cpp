@@ -438,6 +438,7 @@ int do_accel_calibration(orb_advert_t *mavlink_log_pub)
 
 		if (param_save) {
 			param_notify_changes();
+			px4_usleep(600000); // give this message enough time to propagate
 		}
 
 		if (!failed) {
@@ -580,7 +581,6 @@ int do_accel_calibration_quick(orb_advert_t *mavlink_log_pub)
 
 				} else {
 					failed = true;
-					calibration_log_critical(mavlink_log_pub, CAL_QGC_FAILED_MSG, "calibration save failed");
 					break;
 				}
 			}
@@ -593,10 +593,17 @@ int do_accel_calibration_quick(orb_advert_t *mavlink_log_pub)
 
 	if (param_save) {
 		param_notify_changes();
+		px4_usleep(600000); // give this enough time to propagate
 	}
 
 	if (!failed) {
+		calibration_log_info(mavlink_log_pub, CAL_QGC_DONE_MSG, sensor_name);
+		px4_usleep(600000); // give these messages enough time to propagate
 		return PX4_OK;
+
+	} else {
+		calibration_log_critical(mavlink_log_pub, CAL_QGC_FAILED_MSG, "calibration save failed");
+		px4_usleep(600000); // give these messages enough time to propagate
 	}
 
 #endif // !CONSTRAINED_FLASH
